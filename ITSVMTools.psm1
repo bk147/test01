@@ -49,6 +49,12 @@ function New-VMServer
         [Parameter(Mandatory = $false,ValueFromPipelineByPropertyName=$true)]
         [string]$Owner,
 
+        # Which OS Version to create
+        [Parameter(Mandatory = $false,ValueFromPipelineByPropertyName=$true)]
+        [ValidateSet('W2K12R2', 'W2K16')]
+        [string]$OSVersion = 'W2K12R2',
+
+
         # Start the VM after creation
         [Parameter(Mandatory = $false,ValueFromPipelineByPropertyName=$true)]
         [switch]$StartVm = $true,
@@ -75,9 +81,7 @@ function New-VMServer
         $dc1srv = 'esx-vcsa02.srv.aau.dk'  #Cluster DC2
         $dc2srv = 'esx-vcsa01.srv.aau.dk'  #Cluster SLVD
 
-        #Get-Template | ? {$_.Name -like "ws*"}
-        #$template = 'ws2012r2_template'
-        $template = 'ws2012r2_template_vmware'
+        $templates = @{'W2K12R2'='ws2012r2_template_vmware';'W2K16'='ws2k16_template_vmware'}
     }
     Process
     {
@@ -130,6 +134,9 @@ function New-VMServer
         $viClusterName = ($ds | Get-TagAssignment).Tag.Name
         $rp = Get-ResourcePool -Server $visrv | ? {$_.Parent.Name -eq $viClusterName}
         Write-Verbose "Creating the virtual server..."
+
+        # Get the correct template
+        $template = $templates[$OSVersion]
 
         $newvm = New-VM -Name $Name -Template $template -ResourcePool $rp -Datastore $ds -Server $visrv -OSCustomizationSpec $oscs
         $oscs | Remove-OSCustomizationSpec -Confirm:$false
