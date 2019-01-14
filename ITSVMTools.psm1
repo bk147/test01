@@ -216,12 +216,12 @@ function Find-VMVLans
     {
         #Use 'Get-VirtualPortGroup -Name dc*' to get allowed vlan names...
         if ($VLanName -eq "") {
-            Get-VirtualPortGroup | ? {$_.Key -like "dvportgroup*"} | Select-Object Name,DataCenter,@{Name='Vlan';Expression={$_.Key.Split('-')[-1]}}
+            Get-VirtualPortGroup | ? {$_.Key -like "dvportgroup*"} | Select-Object Name,DataCenter,@{Name='Vlan';Expression={$_.ExtensionData.Config.DefaultPortConfig.Vlan.VlanId}}
         } else {
             if ($VLanName.Contains('*')) {
-                Get-VirtualPortGroup -Name $VLanName | ? {$_.Key -like "dvportgroup*"} | Select-Object Name,DataCenter,@{Name='Vlan';Expression={$_.Key.Split('-')[-1]}}
+                Get-VirtualPortGroup -Name $VLanName | ? {$_.Key -like "dvportgroup*"} | Select-Object Name,DataCenter,@{Name='Vlan';Expression={$_.ExtensionData.Config.DefaultPortConfig.Vlan.VlanId}}
             } else {
-                Get-VirtualPortGroup -Name "*$VLanName*" | ? {$_.Key -like "dvportgroup*"} | Select-Object Name,DataCenter,@{Name='Vlan';Expression={$_.Key.Split('-')[-1]}}
+                Get-VirtualPortGroup -Name "*$VLanName*" | ? {$_.Key -like "dvportgroup*"} | Select-Object Name,DataCenter,@{Name='Vlan';Expression={$_.ExtensionData.Config.DefaultPortConfig.Vlan.VlanId}}
             }
         }
     }
